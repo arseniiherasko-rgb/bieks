@@ -58,6 +58,7 @@
       color: #ffffff;
       background: #171717;
       border-radius: 8px;
+      box-shadow: 0 10px 24px rgba(17, 24, 39, 0.16);
     }
 
     .brand h1 {
@@ -98,48 +99,66 @@
     }
 
     .product-card {
-      display: flex;
-      flex-direction: column;
+      position: relative;
+      display: block;
       aspect-ratio: 1 / 1;
       overflow: hidden;
       background: #ffffff;
       border: 3px solid var(--card-color);
       border-radius: 8px;
       box-shadow: 0 14px 34px rgba(17, 24, 39, 0.1);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 22px 45px rgba(17, 24, 39, 0.14);
     }
 
     .image-box {
+      position: absolute;
+      inset: 0 0 84px;
       display: grid;
       place-items: center;
-      flex: 1;
-      min-height: 0;
-      padding: 10px;
+      padding: 12px;
       background: #ffffff;
+      overflow: hidden;
     }
 
     .image-box img {
-      width: 100%;
-      height: 100%;
+      width: auto;
+      height: auto;
+      max-width: 96%;
+      max-height: 96%;
       display: block;
-      object-fit: contain;
+      filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.16));
     }
 
     .product-info {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 2;
       display: grid;
+      grid-template-rows: 30px 36px;
       gap: 8px;
-      padding: 10px;
+      height: 84px;
+      padding: 8px 10px 10px;
       background: #ffffff;
       border-top: 1px solid rgba(17, 24, 39, 0.08);
     }
 
     .product-title {
-      min-height: 34px;
       margin: 0;
-      display: flex;
-      align-items: center;
-      font-size: clamp(13px, 2.8vw, 16px);
+      display: -webkit-box;
+      overflow: hidden;
+      color: #171717;
+      font-size: clamp(11px, 2.2vw, 13px);
       font-weight: 800;
-      line-height: 1.12;
+      line-height: 1.08;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
     }
 
     .add-button {
@@ -148,7 +167,7 @@
       justify-content: center;
       gap: 8px;
       width: 100%;
-      min-height: 38px;
+      min-height: 34px;
       padding: 8px 10px;
       color: #ffffff;
       background: #171717;
@@ -218,6 +237,11 @@
       border-radius: 999px;
       box-shadow: 0 12px 24px rgba(244, 123, 59, 0.34);
       transform: translateY(-20px);
+      transition: transform 150ms ease;
+    }
+
+    .cart-button:hover {
+      transform: translateY(-23px) scale(1.02);
     }
 
     .cart-badge {
@@ -477,6 +501,7 @@
       .topbar {
         align-items: flex-start;
         flex-direction: column;
+        margin-bottom: 18px;
       }
 
       .status-pill {
@@ -489,10 +514,16 @@
 
       .product-info {
         padding: 8px;
+        height: 80px;
+        grid-template-rows: 28px 32px;
+      }
+
+      .image-box {
+        inset: 0 0 80px;
       }
 
       .add-button {
-        min-height: 34px;
+        min-height: 32px;
         font-size: 12px;
       }
 
@@ -512,6 +543,7 @@
       }
 
       .cart-drawer {
+        height: 50vh;
         padding: 14px;
       }
     }
@@ -705,7 +737,6 @@
     function showToast(message) {
       toastEl.textContent = message;
       toastEl.classList.add("is-visible");
-
       window.clearTimeout(toastTimer);
 
       toastTimer = window.setTimeout(() => {
@@ -728,7 +759,7 @@
 
               <button class="add-button ${isAdded ? "is-added" : ""}" type="button" data-product-id="${product.id}">
                 ${isAdded ? iconCheck() : iconPlus()}
-                <span>${isAdded ? "Added" : "Add to cart"}</span>
+                <span>${isAdded ? "Selected" : "Select"}</span>
               </button>
             </div>
           </article>
@@ -790,7 +821,6 @@
 
     function toggleProduct(productId) {
       const product = products.find((item) => item.id === productId);
-
       if (!product) return;
 
       const existingIndex = state.cart.findIndex((item) => item.id === productId);
@@ -822,7 +852,6 @@
 
     productsEl.addEventListener("click", (event) => {
       const button = event.target.closest("[data-product-id]");
-
       if (!button) return;
 
       toggleProduct(Number(button.dataset.productId));
