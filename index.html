@@ -117,7 +117,7 @@
 
     .image-box {
       position: absolute;
-      inset: 0 0 84px;
+      inset: 0 0 56px;
       display: grid;
       place-items: center;
       padding: 12px;
@@ -141,24 +141,10 @@
       left: 0;
       z-index: 2;
       display: grid;
-      grid-template-rows: 30px 36px;
-      gap: 8px;
-      height: 84px;
-      padding: 8px 10px 10px;
+      height: 56px;
+      padding: 10px;
       background: #ffffff;
       border-top: 1px solid rgba(17, 24, 39, 0.08);
-    }
-
-    .product-title {
-      margin: 0;
-      display: -webkit-box;
-      overflow: hidden;
-      color: #171717;
-      font-size: clamp(11px, 2.2vw, 13px);
-      font-weight: 800;
-      line-height: 1.08;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
     }
 
     .add-button {
@@ -514,12 +500,11 @@
 
       .product-info {
         padding: 8px;
-        height: 80px;
-        grid-template-rows: 28px 32px;
+        height: 50px;
       }
 
       .image-box {
-        inset: 0 0 80px;
+        inset: 0 0 50px;
       }
 
       .add-button {
@@ -755,8 +740,6 @@
             </div>
 
             <div class="product-info">
-              <h2 class="product-title">${product.name}</h2>
-
               <button class="add-button ${isAdded ? "is-added" : ""}" type="button" data-product-id="${product.id}">
                 ${isAdded ? iconCheck() : iconPlus()}
                 <span>${isAdded ? "Selected" : "Select"}</span>
