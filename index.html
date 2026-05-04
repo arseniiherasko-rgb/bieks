@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoCart</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding-bottom: 118px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #171717;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(0, 245, 255, 0.95), transparent 26%),
+        radial-gradient(circle at 84% 14%, rgba(255, 46, 166, 0.88), transparent 28%),
+        radial-gradient(circle at 70% 78%, rgba(184, 255, 44, 0.82), transparent 25%),
+        linear-gradient(135deg, #050716 0%, #171138 34%, #001f2f 68%, #14051f 100%);
+      background-attachment: fixed;
+    }
+
+    button {
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .page {
+      width: min(760px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 22px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      color: #ffffff;
+      background: #171717;
+      border-radius: 8px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      color: #ffffff;
+      font-size: clamp(28px, 7vw, 42px);
+      line-height: 1;
+      text-shadow: 0 3px 18px rgba(0, 0, 0, 0.45);
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 14px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 12px;
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.34);
+      border: 1px solid rgba(255, 255, 255, 0.36);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      backdrop-filter: blur(12px);
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background: #ffffff;
+      border: 3px solid var(--card-color);
+      border-radius: 8px;
+      box-shadow: 0 14px 34px rgba(17, 24, 39, 0.1);
+    }
+
+    .image-box {
+      display: grid;
+      place-items: center;
+      flex: 1;
+      min-height: 0;
+      padding: 10px;
+      background: #ffffff;
+    }
+
+    .image-box img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    .product-info {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      background: #ffffff;
+      border-top: 1px solid rgba(17, 24, 39, 0.08);
+    }
+
+    .product-title {
+      min-height: 34px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      font-size: clamp(13px, 2.8vw, 16px);
+      font-weight: 800;
+      line-height: 1.12;
+    }
+
+    .add-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 10px;
+      color: #ffffff;
+      background: #171717;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .add-button.is-added {
+      background: #0f8f6f;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 12px 14px 18px;
+      background: rgba(255, 255, 255, 0.94);
+      border-top: 1px solid #d6e0dc;
+      box-shadow: 0 -18px 40px rgba(17, 24, 39, 0.12);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-inner {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      align-items: center;
+      width: min(640px, 100%);
+      min-height: 72px;
+      padding: 8px;
+      background: #f9fbfa;
+      border: 1px solid #dfe8e4;
+      border-radius: 8px;
+    }
+
+    .nav-button {
+      display: grid;
+      place-items: center;
+      gap: 5px;
+      min-height: 56px;
+      color: #4b5563;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .nav-button.is-active {
+      color: #09624e;
+      background: #e8f6f2;
+    }
+
+    .cart-button {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 68px;
+      height: 68px;
+      justify-self: center;
+      color: #ffffff;
+      background: #f47b3b;
+      border: 5px solid #ffffff;
+      border-radius: 999px;
+      box-shadow: 0 12px 24px rgba(244, 123, 59, 0.34);
+      transform: translateY(-20px);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: 1px;
+      right: -3px;
+      display: grid;
+      place-items: center;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 6px;
+      color: #ffffff;
+      background: #171717;
+      border: 2px solid #ffffff;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      background: rgba(17, 24, 39, 0.38);
+    }
+
+    .drawer-backdrop.is-open {
+      display: block;
+    }
+
+    .cart-drawer {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 50;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      height: 50vh;
+      padding: 16px;
+      background: #ffffff;
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 20px 50px rgba(17, 24, 39, 0.16);
+      transform: translateY(105%);
+      transition: transform 260ms ease;
+    }
+
+    .cart-drawer.is-open {
+      transform: translateY(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #d6e0dc;
+    }
+
+    .drawer-title {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .drawer-subtitle {
+      margin: 5px 0 0;
+      color: #6b7280;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .icon-button {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      color: #171717;
+      background: #eef3f1;
+      border-radius: 8px;
+    }
+
+    .cart-content {
+      min-height: 0;
+      overflow: auto;
+      padding: 14px 2px;
+    }
+
+    .cart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 12px;
+    }
+
+    .cart-item {
+      display: grid;
+      gap: 8px;
+      padding: 8px;
+      background: #f8fbfa;
+      border: 1px solid #d6e0dc;
+      border-radius: 8px;
+    }
+
+    .cart-item img {
+      width: 100%;
+      aspect-ratio: 1.1 / 1;
+      object-fit: contain;
+      background: #ffffff;
+      border-radius: 8px;
+    }
+
+    .cart-item span {
+      min-height: 32px;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      align-content: center;
+      min-height: 100%;
+      padding: 18px;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #171717;
+      font-size: 20px;
+    }
+
+    .drawer-actions {
+      display: flex;
+      justify-content: center;
+      padding-top: 12px;
+      border-top: 1px solid #d6e0dc;
+    }
+
+    .delivery-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 76px;
+      min-width: 76px;
+      min-height: 52px;
+      padding: 12px;
+      color: #ffffff;
+      background: #0f8f6f;
+      border-radius: 999px;
+      box-shadow: 0 12px 24px rgba(15, 143, 111, 0.24);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 110px;
+      z-index: 80;
+      max-width: min(360px, calc(100% - 32px));
+      padding: 12px 14px;
+      color: #ffffff;
+      background: rgba(23, 23, 23, 0.94);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+      transform: translate(-50%, 18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .delivery-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.68);
+      backdrop-filter: blur(12px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    .delivery-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .delivery-message {
+      display: grid;
+      place-items: center;
+      gap: 18px;
+      text-align: center;
+    }
+
+    .delivery-message img {
+      width: min(260px, 72vw);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.45));
+      animation: driveIn 650ms ease both;
+    }
+
+    .delivery-message strong {
+      color: #ffffff;
+      font-size: clamp(24px, 7vw, 42px);
+      line-height: 1.08;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.65);
+    }
+
+    svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .cart-button svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    @keyframes driveIn {
+      from {
+        opacity: 0;
+        transform: translateX(-90px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 760px);
+        padding-top: 18px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .status-pill {
+        width: 100%;
+      }
+
+      .products {
+        gap: 10px;
+      }
+
+      .product-info {
+        padding: 8px;
+      }
+
+      .add-button {
+        min-height: 34px;
+        font-size: 12px;
+      }
+
+      .nav-inner {
+        min-height: 66px;
+        padding: 6px;
+      }
+
+      .nav-button {
+        min-height: 52px;
+        font-size: 10px;
+      }
+
+      .cart-button {
+        width: 62px;
+        height: 62px;
+      }
+
+      .cart-drawer {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M5 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+            <path d="M19 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+            <path d="M8 14h5l3-6h-4"></path>
+            <path d="M5 14l3-6h2l2 6"></path>
+          </svg>
+        </div>
+
+        <div>
+          <h1>MotoCart</h1>
+          <p>Premium bikes for fast city rides</p>
+        </div>
+      </div>
+
+      <div class="status-pill" id="shopStatus">Ready to shop</div>
+    </header>
+
+    <section class="products" id="products" aria-label="Bike products"></section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Store navigation">
+    <div class="nav-inner">
+      <button class="nav-button is-active" type="button" data-nav="Home" aria-label="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 10.5 12 3l9 7.5"></path>
+          <path d="M5 10v10h14V10"></path>
+          <path d="M9 20v-6h6v6"></path>
+        </svg>
+        <span>Home</span>
+      </button>
+
+      <button class="nav-button" type="button" data-nav="Search" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-3.5-3.5"></path>
+        </svg>
+        <span>Search</span>
+      </button>
+
+      <button class="cart-button" type="button" id="openCart" aria-label="Open cart">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6h15l-2 8H8L6 3H3"></path>
+          <circle cx="9" cy="20" r="1.7"></circle>
+          <circle cx="18" cy="20" r="1.7"></circle>
+        </svg>
+        <span class="cart-badge" id="cartCount">0</span>
+      </button>
+
+      <button class="nav-button" type="button" data-nav="Favorites" aria-label="Favorites">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 21s-7-4.4-9.2-9A5.3 5.3 0 0 1 12 6a5.3 5.3 0 0 1 9.2 6c-2.2 4.6-9.2 9-9.2 9Z"></path>
+        </svg>
+        <span>Likes</span>
+      </button>
+
+      <button class="nav-button" type="button" data-nav="Profile" aria-label="Profile">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M4 21a8 8 0 0 1 16 0"></path>
+        </svg>
+        <span>Profile</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart" aria-hidden="true">
+    <div class="drawer-header">
+      <div>
+        <h2 class="drawer-title" id="drawerTitle">Your Cart</h2>
+        <p class="drawer-subtitle" id="drawerSubtitle">Selected bikes appear here</p>
+      </div>
+
+      <button class="icon-button" type="button" id="closeCart" aria-label="Close cart">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 6 6 18"></path>
+          <path d="m6 6 12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="cart-content" id="cartContent"></div>
+
+    <div class="drawer-actions">
+      <button class="delivery-button" type="button" id="deliveryButton" aria-label="Start delivery">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 7h11v10H3Z"></path>
+          <path d="M14 11h4l3 3v3h-7Z"></path>
+          <circle cx="7" cy="19" r="2"></circle>
+          <circle cx="18" cy="19" r="2"></circle>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="delivery-overlay" id="deliveryOverlay" aria-hidden="true">
+    <div class="delivery-message">
+      <img src="https://static.vecteezy.com/system/resources/thumbnails/019/834/588/small/red-delivery-car-flat-icon-png.png" alt="Delivery car" />
+      <strong>Your bikes are on the way!</strong>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      {
+        id: 1,
+        name: "Falcon Street Bike",
+        image: "https://i.pinimg.com/736x/64/25/49/642549b183e0067ecf86c0a226a62775.jpg",
+        color: "#39a6ff"
+      },
+      {
+        id: 2,
+        name: "Shadow Black Motorbike",
+        image: "https://i.pinimg.com/1200x/b6/db/71/b6db71b8d10e991651b1438cc1129b6e.jpg",
+        color: "#262626"
+      },
+      {
+        id: 3,
+        name: "White Sport Motorcycle",
+        image: "https://i.pinimg.com/736x/c7/51/90/c7519029eed0b8c7ef6a232bfd01a5c9.jpg",
+        color: "#3bbf8f"
+      },
+      {
+        id: 4,
+        name: "Arctic Racing Bike",
+        image: "https://i.pinimg.com/1200x/75/91/4e/75914eaa281b2a1aa42ee720c293b35b.jpg",
+        color: "#ffb238"
+      },
+      {
+        id: 5,
+        name: "Urban Cruiser Bike",
+        image: "https://i.pinimg.com/1200x/3e/9d/08/3e9d0849e144a853c12ff175018965c9.jpg",
+        color: "#eb4d69"
+      },
+      {
+        id: 6,
+        name: "Titan 3D Motorcycle",
+        image: "https://i.pinimg.com/1200x/ff/c9/13/ffc91334690217e0e56d1b70513dba97.jpg",
+        color: "#7c5cff"
+      }
+    ];
+
+    const state = {
+      cart: []
+    };
+
+    const productsEl = document.querySelector("#products");
+    const cartCountEl = document.querySelector("#cartCount");
+    const cartDrawerEl = document.querySelector("#cartDrawer");
+    const drawerBackdropEl = document.querySelector("#drawerBackdrop");
+    const cartContentEl = document.querySelector("#cartContent");
+    const drawerTitleEl = document.querySelector("#drawerTitle");
+    const drawerSubtitleEl = document.querySelector("#drawerSubtitle");
+    const shopStatusEl = document.querySelector("#shopStatus");
+    const toastEl = document.querySelector("#toast");
+    const deliveryOverlayEl = document.querySelector("#deliveryOverlay");
+
+    let toastTimer;
+
+    function iconCheck() {
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m5 12 4 4L19 6"></path>
+        </svg>
+      `;
+    }
+
+    function iconPlus() {
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5v14"></path>
+          <path d="M5 12h14"></path>
+        </svg>
+      `;
+    }
+
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("is-visible");
+
+      window.clearTimeout(toastTimer);
+
+      toastTimer = window.setTimeout(() => {
+        toastEl.classList.remove("is-visible");
+      }, 1700);
+    }
+
+    function renderProducts() {
+      productsEl.innerHTML = products.map((product) => {
+        const isAdded = state.cart.some((item) => item.id === product.id);
+
+        return `
+          <article class="product-card" style="--card-color: ${product.color}">
+            <div class="image-box">
+              <img src="${product.image}" alt="${product.name}" loading="lazy" />
+            </div>
+
+            <div class="product-info">
+              <h2 class="product-title">${product.name}</h2>
+
+              <button class="add-button ${isAdded ? "is-added" : ""}" type="button" data-product-id="${product.id}">
+                ${isAdded ? iconCheck() : iconPlus()}
+                <span>${isAdded ? "Added" : "Add to cart"}</span>
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderCart() {
+      cartCountEl.textContent = state.cart.length;
+
+      if (state.cart.length === 0) {
+        drawerTitleEl.textContent = "Your Cart";
+        drawerSubtitleEl.textContent = "Selected bikes appear here";
+
+        cartContentEl.innerHTML = `
+          <div class="empty-state">
+            <div>
+              <strong>Your cart is empty</strong>
+              <span>Add bikes from the shop grid</span>
+            </div>
+          </div>
+        `;
+
+        return;
+      }
+
+      drawerTitleEl.textContent = "Your Cart";
+      drawerSubtitleEl.textContent = `${state.cart.length} bike${state.cart.length === 1 ? "" : "s"} selected`;
+
+      cartContentEl.innerHTML = `
+        <div class="cart-grid">
+          ${state.cart.map((product) => `
+            <div class="cart-item">
+              <img src="${product.image}" alt="${product.name}" />
+              <span>${product.name}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function openCart() {
+      renderCart();
+      cartDrawerEl.classList.add("is-open");
+      drawerBackdropEl.classList.add("is-open");
+      cartDrawerEl.setAttribute("aria-hidden", "false");
+    }
+
+    function closeCart() {
+      cartDrawerEl.classList.remove("is-open");
+      drawerBackdropEl.classList.remove("is-open");
+      cartDrawerEl.setAttribute("aria-hidden", "true");
+    }
+
+    function closeDelivery() {
+      deliveryOverlayEl.classList.remove("is-open");
+      deliveryOverlayEl.setAttribute("aria-hidden", "true");
+    }
+
+    function toggleProduct(productId) {
+      const product = products.find((item) => item.id === productId);
+
+      if (!product) return;
+
+      const existingIndex = state.cart.findIndex((item) => item.id === productId);
+
+      if (existingIndex >= 0) {
+        state.cart.splice(existingIndex, 1);
+        shopStatusEl.textContent = "Bike removed";
+        showToast(`${product.name} removed`);
+      } else {
+        state.cart.push(product);
+        shopStatusEl.textContent = "Bike added";
+        showToast(`${product.name} added`);
+      }
+
+      renderProducts();
+      renderCart();
+    }
+
+    function startDelivery() {
+      if (state.cart.length === 0) {
+        showToast("Add a bike before delivery");
+        return;
+      }
+
+      closeCart();
+      deliveryOverlayEl.classList.add("is-open");
+      deliveryOverlayEl.setAttribute("aria-hidden", "false");
+    }
+
+    productsEl.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-product-id]");
+
+      if (!button) return;
+
+      toggleProduct(Number(button.dataset.productId));
+    });
+
+    document.querySelector("#openCart").addEventListener("click", openCart);
+    document.querySelector("#closeCart").addEventListener("click", closeCart);
+    drawerBackdropEl.addEventListener("click", closeCart);
+    document.querySelector("#deliveryButton").addEventListener("click", startDelivery);
+    deliveryOverlayEl.addEventListener("click", closeDelivery);
+
+    document.querySelectorAll("[data-nav]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-nav]").forEach((item) => {
+          item.classList.remove("is-active");
+        });
+
+        button.classList.add("is-active");
+        shopStatusEl.textContent = `${button.dataset.nav} selected`;
+        showToast(`${button.dataset.nav} selected`);
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeCart();
+        closeDelivery();
+      }
+    });
+
+    renderProducts();
+    renderCart();
+  </script>
+</body>
+</html>
